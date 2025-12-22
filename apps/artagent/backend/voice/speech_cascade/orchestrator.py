@@ -72,6 +72,7 @@ from opentelemetry import trace
 from opentelemetry.trace import SpanKind, Status, StatusCode
 
 
+
 @dataclass
 class HandoffResult:
     """Result from executing a handoff."""
@@ -243,6 +244,7 @@ class CascadeOrchestratorAdapter:
 
     # Unified metrics tracking (replaces individual token/timing fields)
     _metrics: OrchestratorMetrics = field(default=None, init=False)  # type: ignore
+
 
     # Callbacks for integration with SpeechCascadeHandler
     _on_tts_chunk: Callable[[str], Awaitable[None]] | None = field(default=None, init=False)
@@ -763,6 +765,7 @@ class CascadeOrchestratorAdapter:
         )
         turn_id = context.metadata.get("run_id", "") if context.metadata else ""
 
+
         agent = self.current_agent_config
         if not agent:
             return OrchestratorResult(
@@ -1224,6 +1227,7 @@ class CascadeOrchestratorAdapter:
         all_tool_calls: list[dict[str, Any]] = []
         output_tokens = 0
 
+
         # Create span with GenAI semantic conventions
         with tracer.start_as_current_span(
             f"invoke_agent {self._active_agent}",
@@ -1471,6 +1475,7 @@ class CascadeOrchestratorAdapter:
                 self._metrics.add_tokens(output_tokens=output_tokens)
                 self._metrics.record_response()
 
+
                 logger.info(
                     "LLM response (streamed) | agent=%s text_len=%d tool_calls=%d (filtered from %d) iteration=%d",
                     self._active_agent,
@@ -1666,6 +1671,7 @@ class CascadeOrchestratorAdapter:
         Splits by sentence boundaries when possible, otherwise falls back to
         fixed-size slices to ensure early audio playback.
         """
+
         try:
             segments: list[str] = []
             buf = ""
@@ -1691,6 +1697,7 @@ class CascadeOrchestratorAdapter:
                 result = on_tts_chunk(segment)
                 if inspect.isawaitable(result):
                     await result
+
         except Exception as exc:  # pragma: no cover - defensive
             logger.debug("TTS chunk dispatch failed: %s", exc)
 
